@@ -3,7 +3,9 @@
 namespace Circli\Extensions\Queue;
 
 use Circli\Extensions\Queue\Control\StatsCollection;
+use Circli\Extensions\Queue\Exception\DeleteJobException;
 use Circli\Extensions\Queue\Exception\EventNotFound;
+use Circli\Extensions\Queue\Exception\ReleaseJobException;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\StoppableEventInterface;
 use Psr\Log\NullLogger;
@@ -84,6 +86,14 @@ class AsyncEventListener
                     'job' => $job,
                 ]);
                 $this->client->delete($job);
+            }
+            catch (DeleteJobException $e) {
+                $this->stats->increment(StatsCollection::ERROR);
+                $this->client->delete($job);
+            }
+            catch (ReleaseJobException $e) {
+                $this->stats->increment(StatsCollection::ERROR);
+                $this->client->release($job, $e->getPriority(), $e->getDelay());
             }
             catch (\Throwable $e) {
                 $this->stats->increment(StatsCollection::ERROR);
