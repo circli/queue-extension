@@ -40,6 +40,8 @@ class AsyncEventListener
             'pid' => getmypid(),
         ]);
 
+        $this->stats->setTitle($channel);
+
         error_log('Listener will exit at: ' . date('c', $ttl));
 
         $this->client->watch($channel, sprintf(self::COMMAND_CHANNEL, getmypid()));

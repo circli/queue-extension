@@ -38,6 +38,5 @@ final class StatsResponseEvent implements QueueEventInterface
     public function jsonSerialize()
     {
         return $this->stats->jsonSerialize();
-
     }
 }

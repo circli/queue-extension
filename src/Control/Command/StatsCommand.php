@@ -51,17 +51,24 @@ class StatsCommand extends AbstractControlCommand
                 $responseChannel = Uuid::uuid4();
                 $this->queue->watch($responseChannel->toString());
                 $this->eventDispatcher->dispatch(new GetStatsEvent($listener['pid'], $responseChannel));
+            }
+            $q = count($listeners);
+            while (true) {
+                if ($q === 0) {
+                    exit;
+                }
                 $job = $this->queue->reserve();
-
+                $q--;
                 $data = $job->getParsedData();
+
                 $tableData = [];
-                foreach ($data as $key => $value) {
+                foreach ($data['collection'] as $key => $value) {
                     $tableData[] = [$key, $value];
                 }
 
                 $table = new Table($output);
                 $table
-                    ->setHeaderTitle($listener['channel'] . '.' . $listener['pid'])
+                    ->setHeaderTitle($data['title'])
                     ->setColumnWidths([20, 20])
                     ->setHeaders(['Type', 'Count'])
                     ->setRows($tableData);

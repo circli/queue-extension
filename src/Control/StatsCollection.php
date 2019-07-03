@@ -9,6 +9,7 @@ class StatsCollection implements \JsonSerializable
     public const ERROR = 'error';
 
     private $collection = [];
+    private $title = '';
 
     public function increment($field): void
     {
@@ -16,6 +17,11 @@ class StatsCollection implements \JsonSerializable
             $this->collection[$field] = 0;
         }
         $this->collection[$field]++;
+    }
+
+    public function setTitle(string $title)
+    {
+        $this->title = $title;
     }
 
     /**
@@ -27,6 +33,9 @@ class StatsCollection implements \JsonSerializable
      */
     public function jsonSerialize()
     {
-        return $this->collection;
+        return [
+            'collection' => $this->collection,
+            'title' => $this->title,
+        ];
     }
 }
