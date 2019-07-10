@@ -26,7 +26,7 @@ abstract class AbstractControlCommand extends Command
         $return = [];
         if (count($o)) {
             foreach ($o as $line) {
-                [$rawPid, $rawCmd] = explode(' ', $line, 2);
+                [$rawPid, $rawCmd] = explode(' ', trim($line), 2);
                 $pid = (int)$rawPid;
                 if ($pid > 300) {
                     [,$listenerType] = explode(' circli:queue:listener ', $rawCmd, 2);
