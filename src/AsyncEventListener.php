@@ -22,6 +22,8 @@ class AsyncEventListener
     private $logger;
     /** @var StatsCollection */
     private $stats;
+    /** @var int */
+    private $ttl;
 
     public function __construct(
         QueueInterface $client,
@@ -32,19 +34,25 @@ class AsyncEventListener
         $this->dispatcher = $dispatcher;
         $this->logger = new NullLogger();
         $this->stats = $statsCollection;
+        $this->ttl = time() + 3600 + random_int(100, 1800);
+    }
+
+    public function setTtl(int $ttl)
+    {
+        $this->ttl = $ttl;
     }
 
     public function listen(string $channel): void
     {
-        $ttl = time() + 3600 + random_int(100, 1800);
-
         $this->logger->info('Start listener: ' . $channel, [
             'pid' => getmypid(),
         ]);
 
         $this->stats->setTitle($channel);
 
-        error_log('Listener will exit at: ' . date('c', $ttl));
+        if ($this->ttl !== -1) {
+            error_log('Listener will exit at: ' . date('c', $this->ttl));
+        }
 
         $this->client->watch($channel, sprintf(self::COMMAND_CHANNEL, getmypid()));
 
@@ -106,7 +114,7 @@ class AsyncEventListener
                 $this->client->release($job, null, 30);
             }
 
-            if (time() > $ttl) {
+            if ($this->ttl !== -1 && time() > $this->ttl) {
                 error_log('Exit command');
                 break;
             }

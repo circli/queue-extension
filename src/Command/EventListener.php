@@ -7,6 +7,7 @@ use Circli\Extensions\Queue\EventResolver;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class EventListener extends Command
@@ -30,13 +31,18 @@ class EventListener extends Command
         $this
             // the short description shown while running "php bin/console list"
             ->setDescription('Start listener for a specific event.')
-            ->addArgument('event', InputArgument::REQUIRED, 'Event to listen for');
+            ->addArgument('event', InputArgument::REQUIRED, 'Event to listen for')
+            ->addOption('long', 'l', InputOption::VALUE_NONE, 'Ignore max runtime');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $channel = $this->eventResolver->resolveChannel($input->getArgument('event'));
 
-        $this->asyncEventListener->listen($channel);
+        if ($input->hasOption('long')) {
+            $this->asyncEventListener->setTtl(-1);
+        }
+
+        $this->asyncEventListener->listen($channel, $input);
     }
 }
