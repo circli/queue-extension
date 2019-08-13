@@ -39,10 +39,10 @@ class EventListener extends Command
     {
         $channel = $this->eventResolver->resolveChannel($input->getArgument('event'));
 
-        if ($input->hasOption('long')) {
+        if ($input->hasOption('long') && $input->getOption('long')) {
             $this->asyncEventListener->setTtl(-1);
         }
 
-        $this->asyncEventListener->listen($channel, $input);
+        $this->asyncEventListener->listen($channel);
     }
 }
