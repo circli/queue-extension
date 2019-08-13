@@ -54,11 +54,7 @@ class StatsCommand extends AbstractControlCommand
             }
             $q = count($listeners);
             while (true) {
-                if ($q === 0) {
-                    exit;
-                }
                 $job = $this->queue->reserve();
-                $q--;
                 $data = $job->getParsedData();
 
                 $tableData = [];
@@ -75,6 +71,10 @@ class StatsCommand extends AbstractControlCommand
                 $table->render();
 
                 echo "\n\n";
+                $q--;
+                if ($q === 0) {
+                    exit;
+                }
             }
         }
     }
